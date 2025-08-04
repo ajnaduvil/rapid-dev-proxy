@@ -34,6 +34,51 @@ uv pip install -e .
 pip install rapid-dev-proxy
 ```
 
+### Building Executable
+
+To build a standalone executable:
+
+```bash
+# Install PyInstaller
+uv add pyinstaller
+
+# Build using PowerShell (Windows)
+.\build.ps1
+
+# Build using batch file (Windows)
+.\build.bat
+
+# Build using Python script
+python build.py
+
+# Or build directly with PyInstaller
+uv run python -m PyInstaller rapid_dev_proxy.spec
+```
+
+The executable will be created in the `dist/` directory as `rapid-dev-proxy.exe`.
+
+**Note**: The executable is approximately 18MB and includes all dependencies, making it completely standalone.
+
+### Using the Executable
+
+Once built, you can use the executable directly:
+
+```bash
+# Show help
+.\dist\rapid-dev-proxy.exe --help
+
+# Create sample configuration
+.\dist\rapid-dev-proxy.exe init
+
+# Start the proxy
+.\dist\rapid-dev-proxy.exe start -c config.json
+
+# Validate configuration
+.\dist\rapid-dev-proxy.exe validate -c config.json
+```
+
+The executable works exactly like the Python version but doesn't require Python or any dependencies to be installed.
+
 ## Quick Start
 
 1. **Create a sample configuration**:

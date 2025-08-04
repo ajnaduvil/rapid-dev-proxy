@@ -10,8 +10,13 @@ import uvicorn
 from rich.console import Console
 from rich.table import Table
 
-from .config_manager import ConfigManager
-from .proxy_server import ProxyServer
+try:
+    from .config_manager import ConfigManager
+    from .proxy_server import ProxyServer
+except ImportError:
+    # For PyInstaller packaged executable
+    from rapid_dev_proxy.config_manager import ConfigManager
+    from rapid_dev_proxy.proxy_server import ProxyServer
 
 console = Console()
 
