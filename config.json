@@ -1,0 +1,45 @@
+{
+  "proxy": {
+    "host": "127.0.0.1",
+    "port": 8080,
+    "timeout": 30.0,
+    "max_connections": 100
+  },
+  "routes": {
+    "api.local": {
+      "target": "http://127.0.0.1:3000",
+      "metadata": {
+        "description": "API Server"
+      }
+    },
+    "app.local": {
+      "target": "http://127.0.0.1:8080",
+      "metadata": {
+        "description": "Frontend App"
+      }
+    },
+    "admin.local": {
+      "target": "http://127.0.0.1:9000",
+      "metadata": {
+        "description": "Admin Panel"
+      }
+    }
+  },
+  "default": {
+    "target": "http://127.0.0.1:3000",
+    "error_pages": {
+      "404": "Not Found",
+      "502": "Bad Gateway"
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "destination": "console"
+  },
+  "security": {
+    "cors_enabled": true,
+    "rate_limit_enabled": false,
+    "auth_headers": {}
+  }
+}
