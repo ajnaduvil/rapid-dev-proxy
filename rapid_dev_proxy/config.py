@@ -1,6 +1,6 @@
 """Configuration management for Rapid Dev Proxy."""
 
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, List
 from pydantic import BaseModel, Field, validator
 from pydantic_settings import BaseSettings
 
@@ -31,6 +31,7 @@ class RouteConfig(BaseModel):
     """Route configuration."""
     target: str = Field(description="Target URL (e.g., http://127.0.0.1:3000)")
     metadata: Optional[Dict[str, str]] = Field(default_factory=dict, description="Route metadata")
+    aliases: List[str] = Field(default_factory=list, description="Alternate hostnames that should map to this route")
 
     @validator('target')
     def validate_target(cls, v):

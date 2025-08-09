@@ -64,6 +64,15 @@ def start(config: str, host: Optional[str], port: Optional[int], reload: bool, d
         console.print(f"[green]Starting Rapid Dev Proxy on {config_manager.config.proxy.host}:{config_manager.config.proxy.port}[/green]")
         console.print(f"[blue]Configuration file: {config}[/blue]")
         console.print(f"[blue]Loaded {len(config_manager.config.routes)} routes[/blue]")
+        # Print no-hosts access hints
+        try:
+            port = config_manager.config.proxy.port
+            console.print("[blue]No-hosts shortcuts:[/blue]")
+            for domain in config_manager.config.routes.keys():
+                console.print(f"[blue]- http://127.0.0.1:{port}/@{domain}/[/blue]")
+                console.print(f"[blue]- http://{domain}.localhost:{port}/[/blue]")
+        except Exception:
+            pass
         
         # Start server
         uvicorn.run(
@@ -90,7 +99,7 @@ def validate(config: str):
         config_manager.load_config()
         
         if config_manager.validate_config():
-            console.print("[green]✓ Configuration is valid[/green]")
+            console.print("[green]Configuration is valid[/green]")
             
             # Display routes
             table = Table(title="Configured Routes")
@@ -105,7 +114,7 @@ def validate(config: str):
             console.print(table)
             
         else:
-            console.print("[red]✗ Configuration validation failed[/red]")
+            console.print("[red]Configuration validation failed[/red]")
             sys.exit(1)
             
     except Exception as e:
@@ -121,7 +130,7 @@ def init(output: str):
         config_manager = ConfigManager()
         config_manager.create_sample_config(output)
         
-        console.print(f"[green]✓ Sample configuration created: {output}[/green]")
+        console.print(f"[green]Sample configuration created: {output}[/green]")
         console.print("[blue]Edit the configuration file to add your routes and start the proxy with:[/blue]")
         console.print(f"[yellow]rapid-dev-proxy start -c {output}[/yellow]")
         

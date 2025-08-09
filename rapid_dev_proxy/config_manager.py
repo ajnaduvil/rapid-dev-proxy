@@ -58,20 +58,43 @@ class ConfigManager:
             return False
 
     def get_route(self, host: str) -> Optional[str]:
-        """Get target URL for a given host."""
+        """Get target URL for a given host.
+
+        Enhancements to avoid hosts file requirements:
+        - Supports alias matching per route (exact and wildcard).
+        - Treats any "<domain>.localhost" as an alias for "<domain>" to leverage the special .localhost TLD.
+        """
         if not self.config:
             self.load_config()
 
-        # Remove port from host if present
-        host = host.split(':')[0]
-        
+        if host is None:
+            host = ""
+
+        # Normalize and remove port from host if present
+        host = host.split(':')[0].strip().lower()
+
+        # Support <domain>.localhost mapping without hosts file changes
+        if host.endswith('.localhost'):
+            host = host[: -len('.localhost')]
+
         # Check for exact match first
         if host in self.config.routes:
             return self.config.routes[host].target
 
-        # Check for wildcard subdomain match
+        # Check for alias match (including wildcard aliases)
         for domain, route in self.config.routes.items():
-            if domain.startswith('*.') and host.endswith(domain[1:]):
+            # Exact alias match
+            for alias in getattr(route, 'aliases', []) or []:
+                alias_norm = alias.strip().lower()
+                if alias_norm == host:
+                    return route.target
+                if alias_norm.startswith('*.') and host.endswith(alias_norm[1:]):
+                    return route.target
+
+        # Check for wildcard subdomain match on primary domain
+        for domain, route in self.config.routes.items():
+            domain_norm = domain.strip().lower()
+            if domain_norm.startswith('*.') and host.endswith(domain_norm[1:]):
                 return route.target
 
         # Return default route
