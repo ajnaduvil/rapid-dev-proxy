@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from rapid_dev_proxy.config import ProxyConfig, RouteConfig, ProxySettings
+from rapid_dev_proxy.config_manager import ConfigManager
 
 
 class TestProxySettings:
@@ -78,3 +79,25 @@ class TestProxyConfig:
         }
         with pytest.raises(ValidationError):
             ProxyConfig(**config_data) 
+
+
+class TestConfigManagerRouting:
+    """Test hostname routing conveniences in ConfigManager."""
+
+    def test_localhost_aliases(self):
+        """Support both app.local.localhost and app.localhost aliases."""
+        config_data = {
+            "routes": {
+                "app.local": {
+                    "target": "http://127.0.0.1:3001"
+                }
+            },
+            "default": {
+                "target": "http://127.0.0.1:3000"
+            }
+        }
+        manager = ConfigManager()
+        manager.config = ProxyConfig(**config_data)
+
+        assert manager.get_route("app.local.localhost:8080") == "http://127.0.0.1:3001"
+        assert manager.get_route("app.localhost:8080") == "http://127.0.0.1:3001"

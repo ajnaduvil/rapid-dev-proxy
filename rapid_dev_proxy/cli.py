@@ -71,6 +71,9 @@ def start(config: str, host: Optional[str], port: Optional[int], reload: bool, d
             for domain in config_manager.config.routes.keys():
                 console.print(f"[blue]- http://127.0.0.1:{port}/@{domain}/[/blue]")
                 console.print(f"[blue]- http://{domain}.localhost:{port}/[/blue]")
+                if domain.endswith(".local"):
+                    short_name = domain[:-len(".local")]
+                    console.print(f"[blue]- http://{short_name}.localhost:{port}/[/blue]")
         except Exception:
             pass
         

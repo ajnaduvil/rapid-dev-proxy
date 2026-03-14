@@ -125,8 +125,8 @@ The executable works exactly like the Python version but doesn't require Python 
    ```
 
 5. **Access your services**:
-   - API: http://api.local:8080
-   - App: http://app.local:8080
+   - API: http://api.local.localhost:8080 (or http://api.localhost:8080)
+   - App: http://app.local.localhost:8080 (or http://app.localhost:8080)
 
 ## Configuration
 

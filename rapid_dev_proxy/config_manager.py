@@ -63,6 +63,7 @@ class ConfigManager:
         Enhancements to avoid hosts file requirements:
         - Supports alias matching per route (exact and wildcard).
         - Treats any "<domain>.localhost" as an alias for "<domain>" to leverage the special .localhost TLD.
+        - Treats "<name>.localhost" as an alias for "<name>.local" to keep dev URLs short.
         """
         if not self.config:
             self.load_config()
@@ -77,25 +78,34 @@ class ConfigManager:
         if host.endswith('.localhost'):
             host = host[: -len('.localhost')]
 
+        # Build candidate hostnames for matching.
+        # This enables short URL forms like app.localhost -> app.local.
+        candidate_hosts = [host]
+        if host and '.' not in host:
+            candidate_hosts.append(f"{host}.local")
+
         # Check for exact match first
-        if host in self.config.routes:
-            return self.config.routes[host].target
+        for candidate_host in candidate_hosts:
+            if candidate_host in self.config.routes:
+                return self.config.routes[candidate_host].target
 
         # Check for alias match (including wildcard aliases)
         for domain, route in self.config.routes.items():
             # Exact alias match
             for alias in getattr(route, 'aliases', []) or []:
                 alias_norm = alias.strip().lower()
-                if alias_norm == host:
-                    return route.target
-                if alias_norm.startswith('*.') and host.endswith(alias_norm[1:]):
-                    return route.target
+                for candidate_host in candidate_hosts:
+                    if alias_norm == candidate_host:
+                        return route.target
+                    if alias_norm.startswith('*.') and candidate_host.endswith(alias_norm[1:]):
+                        return route.target
 
         # Check for wildcard subdomain match on primary domain
         for domain, route in self.config.routes.items():
             domain_norm = domain.strip().lower()
-            if domain_norm.startswith('*.') and host.endswith(domain_norm[1:]):
-                return route.target
+            for candidate_host in candidate_hosts:
+                if domain_norm.startswith('*.') and candidate_host.endswith(domain_norm[1:]):
+                    return route.target
 
         # Return default route
         return self.config.default.target
